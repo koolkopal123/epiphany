@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF5EE">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Epiphany</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Lora:wght@400;500;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FBF5EE; --linen:#F6ECE1; --oat:#EADCCD; --sand:#DCCAB6; --latte:#B9A190;
+  --taupe:#5E4B41; --muted:#86746A;
+  --rose:#D8A09A; --mint:#D3EBDD; --mint-deep:#B9DEC9; --sky:#CFE4EE;
+  --serif:'Cormorant Garamond',Georgia,serif; --body:'Lora',Georgia,serif; --script:'Dancing Script',cursive;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--cream);color:var(--taupe);font-family:var(--body);font-size:16px}
+#app{max-width:430px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--cream)}
+header{display:flex;justify-content:space-between;align-items:flex-end;padding:calc(env(safe-area-inset-top,0px) + 14px) 20px 8px}
+.script{font-family:var(--script);font-size:22px;margin:0;color:var(--taupe);line-height:1.2}
+h1{font-family:var(--serif);font-size:30px;font-weight:600;margin:0;line-height:1.1}
+main{flex:1;overflow-y:auto;padding:6px 20px 24px;touch-action:pan-y}
+nav{display:flex;gap:6px;background:var(--linen);border-top:1px solid var(--oat);padding:8px 8px calc(env(safe-area-inset-bottom,0px) + 8px)}
+nav button{flex:1;border:0;background:none;font-family:var(--serif);font-size:16px;font-weight:600;color:var(--muted);padding:10px 4px;border-radius:14px;cursor:pointer}
+nav button.active{background:var(--rose);color:var(--taupe)}
+.card{background:var(--linen);border:1px solid var(--oat);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.hname{font-family:var(--serif);font-size:18px;font-weight:600}
+.muted{color:var(--muted);font-size:14px;margin:2px 0 12px}
+.small{font-size:13px}
+.sec{font-family:var(--serif);font-size:19px;font-weight:600;margin:18px 0 8px}
+.cat{font-family:var(--serif);font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:18px 0 6px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.row2{display:flex;gap:8px;align-items:center}
+.ring-wrap{display:flex;align-items:center;gap:16px}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;font-weight:600;white-space:nowrap;color:var(--taupe)}
+.s-mint{background:var(--mint)} .s-sky{background:var(--sky)} .s-rose{background:var(--rose)}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:0;margin-right:5px}
+.legend{font-size:12px;line-height:1;color:var(--muted);margin:0 0 12px;display:flex;flex-wrap:wrap;gap:12px;align-items:baseline}
+button.btn{font-family:var(--serif);font-size:16px;font-weight:600;border:0;border-radius:14px;padding:10px 16px;background:var(--rose);color:var(--taupe);cursor:pointer}
+button.ghost{background:var(--oat)}
+.wide{width:100%;margin-top:10px}
+.dots{border:1px solid var(--oat);background:var(--linen);width:40px;height:40px;border-radius:50%;font-size:20px;color:var(--taupe);cursor:pointer}
+input,select,textarea{width:100%;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:1px solid var(--sand);background:var(--cream);color:var(--taupe);margin:4px 0 12px}
+.cat-row{display:flex;gap:8px;margin-bottom:8px}
+.cat-row input{margin:0}
+.lbl{font-size:13px;color:var(--muted);display:block}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.chip{border:1px solid var(--sand);background:var(--cream);color:var(--taupe);border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--rose);border-color:var(--rose)}
+.menu-item{display:block;width:100%;text-align:left;font-family:var(--serif);font-size:19px;font-weight:600;background:var(--linen);border:1px solid var(--oat);border-radius:16px;padding:14px 16px;margin-bottom:10px;color:var(--taupe);cursor:pointer}
+.sheet{position:fixed;inset:0;background:rgba(94,75,65,.22);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet.open{display:flex}
+.sheet-panel{background:var(--cream);width:100%;max-width:430px;max-height:88dvh;overflow-y:auto;border-radius:26px 26px 0 0;padding:14px 20px calc(env(safe-area-inset-bottom,0px) + 20px)}
+.grip{width:44px;height:5px;border-radius:9px;background:var(--sand);margin:0 auto 12px}
+.sheet-title{font-family:var(--serif);font-size:24px;font-weight:600;margin:0 0 12px}
+.dow,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.dow{font-size:12px;color:var(--muted);margin:14px 0 6px}
+.day{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;background:var(--linen);border:1px solid var(--oat);cursor:pointer;position:relative}
+.day.l1{background:#E3F2EA} .day.l2{background:#BEE0CD} .day.l3{background:#9ACFB2}
+.day.today{outline:2px solid var(--rose)}
+.day.blank{visibility:hidden}
+.fls{display:inline-flex;gap:4px;color:#B86F68;font-size:16px;line-height:1}
+.day.future{background:none;border:0;cursor:default;color:var(--muted)}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.moods{display:flex;flex-direction:column;gap:6px;margin:6px 0 12px}
+.mood-btn{border:1px solid var(--sand);background:var(--cream);border-radius:14px;padding:10px 14px;color:var(--taupe);cursor:pointer;display:flex;align-items:center;text-align:left}
+.mood-btn.on{background:var(--rose);border-color:var(--rose)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div>
+      <p class="script">Epiphany</p>
+      <h1 id="title">Today</h1>
+    </div>
+    <div id="hdr-right"></div>
+  </header>
+  <main id="main"><div id="view"></div></main>
+  <nav>
+    <button class="active">Today</button>
+    <button>Hobby</button>
+    <button>History</button>
+  </nav>
+</div>
+
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet-panel" id="sheet-body"></div>
+</div>
+
+<script>
+/* ---------- State ---------- */
+const KEY='epiphany.v1';
+const DEF={hobbies:[],logs:[],categories:['Arts','Taste','Knowledge'],
+  defaults:{mode:'time',time:'19:30',sessionTime:'19:30',amount:30,unit:'min',daysBefore:1},fired:{}};
+let S;
+try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=Object.assign({},DEF);}
+const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const mondayIndex=d=>(d.getDay()+6)%7;
+const weekStart=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-mondayIndex(x));return x;};
+const atTime=(d,t)=>{const [h,m]=t.split(':').map(Number);const x=new Date(d);x.setHours(h,m,0,0);return x;};
+
+function periodRange(h,d){
+  if(h.freq==='month'){return [new Date(d.getFullYear(),d.getMonth(),1),new Date(d.getFullYear(),d.getMonth()+1,0)];}
+  const s=weekStart(d);return [s,addDays(s,6)];
+}
+function countLogs(h,d=new Date()){
+  const [s,e]=periodRange(h,d);const a=ymd(s),b=ymd(e);
+  return S.logs.filter(l=>l.hobbyId===h.id&&l.date>=a&&l.date<=b).length;
+}
+function target(h){return h.freq==='daily'?7:h.freq==='weekdays'?(h.days||[]).length:h.count;}
+function elapsed(h,d=new Date()){
+  if(h.freq==='month')return d.getDate()/new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  return (mondayIndex(d)+1)/7;
+}
+/* Colour status: rose = exceeded, mint = met or on pace, sky = behind pace */
+function status(h){
+  const c=countLogs(h),t=target(h);
+  if(c>t)return{k:'rose',label:'Exceeded'};
+  if(c===t)return{k:'mint',label:'Met'};
+  if(c>=t*elapsed(h))return{k:'mint',label:'On track'};
+  return{k:'sky',label:'Behind'};
+}
+const freqText=h=>h.freq==='daily'?'Daily':h.freq==='week'?`${h.count}× a week`:h.freq==='month'?`${h.count}× a month`:(h.days||[]).map(i=>DAYS[i]).join(', ');
+function isDueOn(h,d){return h.freq==='weekdays'?(h.days||[]).includes(d.getDay()):true;}
+function pending(h,now=new Date()){
+  if(h.freq==='daily'||h.freq==='weekdays'){
+    if(!isDueOn(h,now))return false;
+    return !S.logs.some(l=>l.hobbyId===h.id&&l.date===ymd(now));
+  }
+  return countLogs(h,now)<target(h);
+}
+function reminderFire(h,now=new Date()){
+  const r=h.reminder;if(!r)return null;
+  if(r.mode==='time')return atTime(now,r.time);
+  if(r.mode==='before'){
+    const s=atTime(now,r.sessionTime||'19:30');
+    return new Date(s.getTime()-(r.amount*(r.unit==='hr'?60:1))*60000);
+  }
+  if(r.mode==='days'){
+    return isDueOn(h,addDays(now,r.daysBefore||0))?atTime(now,r.time):null;
+  }
+  return null;
+}
+function remText(h){
+  const r=h.reminder;if(!r)return 'No reminder';
+  if(r.mode==='time')return `Reminder at ${r.time}`;
+  if(r.mode==='before')return `${r.amount} ${r.unit==='hr'?'hr':'min'} before ${r.sessionTime}`;
+  return `${r.daysBefore} day${r.daysBefore==1?'':'s'} ahead, at ${r.time}`;
+}
+
+/* ---------- Reminders (fire while the app is open) ---------- */
+function checkReminders(){
+  const now=new Date(),today=ymd(now);
+  let changed=false;
+  S.hobbies.forEach(h=>{
+    const fire=reminderFire(h,now);
+    if(!fire||now<fire||now-fire>3*3600e3)return;
+    if(!pending(h,now))return;
+    const key=h.id+'|'+today;
+    if(S.fired[key])return;
+    S.fired[key]=true;changed=true;
+    if('Notification' in window&&Notification.permission==='granted')
+      new Notification('Epiphany',{body:`Time for ${h.name}`,icon:'icon.svg'});
+  });
+  if(changed){save();render();}
+}
+
+/* ---------- Navigation ---------- */
+const TABS=['Today','Hobby','History'];
+let tab=0,viewMonth=new Date(),logMood=null;
+function go(i,dir=0){
+  const next=Math.max(0,Math.min(2,i));
+  if(next===tab&&dir!==0)return;
+  const d=next>tab?1:next<tab?-1:0;
+  tab=next;
+  document.querySelectorAll('nav button').forEach((b,j)=>b.classList.toggle('active',j===tab));
+  render();
+  if(d)$('#main').animate([{opacity:.3,transform:`translateX(${d*24}px)`},{opacity:1,transform:'none'}],{duration:240,easing:'ease-out'});
+}
+function render(){
+  $('#title').textContent=TABS[tab];
+  $('#hdr-right').innerHTML=tab===1?'<button class="dots" aria-label="Menu" onclick="openMenu()">⋮</button>':'';
+  $('#view').innerHTML=tab===0?renderToday():tab===1?renderDetails():renderHistory();
+}
+const main=$('#main');let sx=0,sy=0;
+main.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+main.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)go(tab+(dx<0?1:-1),dx<0?1:-1);
+},{passive:true});
+document.querySelectorAll('nav button').forEach((b,j)=>b.onclick=()=>go(j,j>tab?1:-1));
+
+/* ---------- Sheets ---------- */
+function openSheet(html){$('#sheet-body').innerHTML=html;$('#sheet').classList.add('open');$('#sheet-body').scrollTop=0;}
+function closeSheet(){$('#sheet').classList.remove('open');}
+function openMenu(){
+  openSheet(`<div class="grip"></div><h2 class="sheet-title">Menu</h2>
+  <button class="menu-item" onclick="openSetup()">Hobby Setup</button>
+  <button class="menu-item" onclick="openSettings()">Settings</button>`);
+}
+
+/* ---------- Today ---------- */
+function renderToday(){
+  const now=new Date(),hr=now.getHours();
+  const greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+  const total=S.hobbies.length;
+  const open=S.hobbies.filter(h=>pending(h,now));
+  const doneList=S.hobbies.filter(h=>!pending(h,now));
+  const pct=total?Math.round(doneList.length/total*100):0;
+  const C=2*Math.PI*46;
+  let html=`<p class="script" style="font-size:24px">${greet}</p>
+  <p class="muted">${now.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</p>
+  <div class="card ring-wrap">
+    <svg viewBox="0 0 110 110" width="104" height="104" aria-hidden="true">
+      <circle cx="55" cy="55" r="46" fill="none" stroke="var(--oat)" stroke-width="10"/>
+      <circle cx="55" cy="55" r="46" fill="none" stroke="var(--mint-deep)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(C*pct/100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 55 55)"/>
+      <text x="55" y="62" text-anchor="middle" font-family="Cormorant Garamond,Georgia,serif" font-size="22" font-weight="600" fill="var(--taupe)">${pct}%</text>
+    </svg>
+    <div>
+      <div class="hname">${doneList.length} of ${total} hobbies</div>
+      <div class="muted">${total?(open.length?'Still to practise today':'All done. Lovely.'):'No hobbies yet'}</div>
+    </div>
+  </div>`;
+  if(!total){
+    html+=`<p class="muted">Tap ⋮ in Hobby Details to add your first hobby.</p>`;
+    return html;
+  }
+  html+=`<p class="sec">Reminders</p>`;
+  html+=open.length?open.map(h=>`
+    <div class="card row">
+      <div>
+        <div class="hname">${esc(h.name)}</div>
+        <div class="small muted" style="margin:0">${esc(h.category)} · ${esc(remText(h))}</div>
+      </div>
+      <button class="btn" onclick="openLog('${h.id}')">Log</button>
+    </div>`).join(''):`<p class="muted">Nothing pending. Enjoy your time.</p>`;
+  if(doneList.length){
+    html+=`<p class="sec">Completed</p>`+doneList.map(h=>{
+      const st=status(h);
+      return `<div class="card row"><span class="hname">${esc(h.name)}</span><span class="pill s-${st.k}">${st.label}</span></div>`;
+    }).join('');
+  }
+  return html;
+}
+
+/* ---------- Hobby Details ---------- */
+function renderDetails(){
+  const legend=`<div class="legend">
+    <span><span class="sw" style="background:#D3EBDD"></span>On track or met</span>
+    <span><span class="sw" style="background:#CFE4EE"></span>Behind</span>
+    <span><span class="sw" style="background:#D8A09A"></span>Exceeded</span></div>`;
+  if(!S.hobbies.length)return '<p class="muted">No hobbies yet. Tap ⋮ above to set up your first one.</p>';
+  const extra=[...new Set(S.hobbies.map(h=>h.category))].filter(c=>!S.categories.includes(c));
+  const cats=[...S.categories,...extra];
+  return legend+cats.map(cat=>{
+    const list=S.hobbies.filter(h=>h.category===cat);
+    if(!list.length)return '';
+    return `<p class="cat">${esc(cat)}</p>`+list.map(h=>{
+      const st=status(h),c=countLogs(h),t=target(h);
+      return `<div class="card">
+        <div class="row"><div><div class="hname">${esc(h.name)}</div><div class="small muted" style="margin:0">${esc(freqText(h))}</div></div>
+        <span class="pill s-${st.k}">${st.label}</span></div>
+        <div class="row" style="margin-top:10px"><span class="small">${c} of ${t} this ${h.freq==='month'?'month':'week'}</span>
+        <button class="btn" onclick="openLog('${h.id}')">+ Log</button></div>
+      </div>`;
+    }).join('');
+  }).join('');
+}
+
+/* ---------- History ---------- */
+function shiftMonth(n){viewMonth=new Date(viewMonth.getFullYear(),viewMonth.getMonth()+n,1);render();}
+function renderHistory(){
+  const y=viewMonth.getFullYear(),m=viewMonth.getMonth();
+  const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),lead=mondayIndex(first);
+  const todayKey=ymd(new Date());
+  let html=`<div class="month-nav">
+    <button class="btn ghost" onclick="shiftMonth(-1)">‹</button>
+    <span class="hname">${first.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</span>
+    <button class="btn ghost" onclick="shiftMonth(1)">›</button></div>
+    <div class="dow">${['M','T','W','T','F','S','S'].map(d=>`<span>${d}</span>`).join('')}</div><div class="cal">`;
+  for(let i=0;i<lead;i++)html+='<div class="day blank"></div>';
+  for(let d=1;d<=days;d++){
+    const key=`${y}-${pad(m+1)}-${pad(d)}`;
+    const logs=S.logs.filter(l=>l.date===key);
+    const n=new Set(logs.map(l=>l.hobbyId)).size;
+    const moods=logs.filter(l=>l.mood).map(l=>l.mood);
+    const avg=moods.length?moods.reduce((a,b)=>a+b,0)/moods.length:0;
+    if(key>todayKey){
+      html+=`<div class="day future"><span>${d}</span></div>`;
+    }else{
+      html+=`<div class="day ${n?'l'+Math.min(n,3):''} ${key===todayKey?'today':''}" onclick="dayDetail('${key}')"><span>${d}</span></div>`;
+    }
+  }
+  html+='</div>';
+  return html;
+}
+function flowers(n){return `<span class="fls">${'<span>❀</span>'.repeat(n)}</span>`;}
+function dayDetail(key){
+  const logs=S.logs.filter(l=>l.date===key);
+  const ms=logs.filter(l=>l.mood).map(l=>l.mood);
+  const dayAvg=ms.length?`<div style="margin-bottom:12px">${flowers(Math.round(ms.reduce((a,b)=>a+b,0)/ms.length))}</div>`:'';
+  const list=logs.length?logs.map(l=>{
+    const h=S.hobbies.find(x=>x.id===l.hobbyId);
+    return `<div class="card row"><div><div class="hname">${esc(h?h.name:'Deleted hobby')}</div>
+      <div class="small muted" style="margin:0">${esc(l.time||'')}${l.note?' · '+esc(l.note):''}</div></div>
+      <div class="row2"><span>${l.mood?flowers(l.mood):''}</span>
+      <button class="btn ghost" onclick="deleteLog('${l.id}','${key}')">✕</button></div></div>`;
+  }).join(''):'<p class="muted">No sessions on this day.</p>';
+  openSheet(`<div class="grip"></div><h2 class="sheet-title">${new Date(key+'T00:00').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'})}</h2>${dayAvg}${list}`);
+}
+function deleteLog(id,key){
+  S.logs=S.logs.filter(l=>l.id!==id);save();render();dayDetail(key);
+}
+
+/* ---------- Log a session ---------- */
+function openLog(hid){
+  if(!S.hobbies.length)return openSetup(null);
+  const pick=hid||S.hobbies[0].id;logMood=null;
+  openSheet(`<div class="grip"></div><h2 class="sheet-title">Log a session</h2>
+  <label class="lbl">Hobby</label>
+  <div class="chips" id="chips">${S.hobbies.map(h=>`<button type="button" class="chip ${h.id===pick?'on':''}" data-id="${h.id}" onclick="pickChip(this)">${esc(h.name)}</button>`).join('')}</div>
+  <label class="lbl">Date</label>
+  <input type="date" id="ldate" value="${ymd(new Date())}" max="${ymd(new Date())}">
+  <label class="lbl">How did it feel?</label>
+  <div class="moods">${[1,2,3,4,5].map(n=>`<button type="button" class="mood-btn" onclick="pickMood(${n},this)">${flowers(n)}</button>`).join('')}</div>
+  <label class="lbl">Note (optional)</label>
+  <textarea id="lnote" rows="2"></textarea>
+  <div class="row" style="margin-top:12px"><button class="btn ghost" onclick="closeSheet()">Cancel</button><button class="btn" onclick="saveLog()">Save session</button></div>`);
+}
+function pickChip(el){document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('on',c===el));}
+function pickMood(n,el){logMood=n;document.querySelectorAll('.mood-btn').forEach(b=>b.classList.toggle('on',b===el));}
+function saveLog(){
+  const chip=document.querySelector('#chips .chip.on');if(!chip)return;
+  const now=new Date();
+  S.logs.push({id:uid(),date:$('#ldate').value||ymd(now),time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    hobbyId:chip.dataset.id,mood:logMood,note:$('#lnote').value.trim()});
+  save();closeSheet();render();
+}
+
+/* ---------- Hobby Setup ---------- */
+function remFields(r){
+  return `<div class="rem">
+    <label class="lbl">Remind me</label>
+    <select class="mode" onchange="syncForm()">
+      <option value="time" ${r.mode==='time'?'selected':''}>At a set time of day</option>
+      <option value="before" ${r.mode==='before'?'selected':''}>Before the session</option>
+      <option value="days" ${r.mode==='days'?'selected':''}>Days ahead</option>
+    </select>
+    <div data-mode="time days"><label class="lbl">Time</label><input type="time" class="rtime" value="${r.time||'19:30'}"></div>
+    <div data-mode="before"><label class="lbl">Session time</label><input type="time" class="rsession" value="${r.sessionTime||'19:30'}"></div>
+    <div data-mode="before"><label class="lbl">Remind me ahead by</label>
+      <div class="row2"><input type="number" class="ramount" min="1" value="${r.amount||30}" style="width:50%">
+      <select class="runit" style="width:50%"><option value="min" ${r.unit!=='hr'?'selected':''}>minutes</option><option value="hr" ${r.unit==='hr'?'selected':''}>hours</option></select></div></div>
+    <div data-mode="days"><label class="lbl">Days ahead of the session</label><input type="number" class="rdays" min="0" value="${r.daysBefore??1}"></div>
+  </div>`;
+}
+function readRem(root){
+  return{
+    mode:root.querySelector('.mode').value,
+    time:root.querySelector('.rtime').value||'19:30',
+    sessionTime:root.querySelector('.rsession').value||'19:30',
+    amount:Math.max(1,(+root.querySelector('.ramount').value)||30),
+    unit:root.querySelector('.runit').value,
+    daysBefore:Math.max(0,(+root.querySelector('.rdays').value)||0)
+  };
+}
+function syncForm(){
+  document.querySelectorAll('.rem').forEach(b=>{
+    const m=b.querySelector('.mode').value;
+    b.querySelectorAll('[data-mode]').forEach(e=>e.style.display=e.dataset.mode.split(' ').includes(m)?'':'none');
+  });
+  const f=$('#f-freq');
+  if(f)document.querySelectorAll('[data-freq]').forEach(e=>e.style.display=e.dataset.freq.split(' ').includes(f.value)?'':'none');
+}
+function openSetup(id){
+  if(id===undefined&&S.hobbies.length){
+    openSheet(`<div class="grip"></div><h2 class="sheet-title">Hobby Setup</h2>
+      ${S.hobbies.map(h=>`<div class="card row"><span class="hname">${esc(h.name)}</span><button class="btn ghost" onclick="openSetup('${h.id}')">Edit</button></div>`).join('')}
+      <button class="btn wide" onclick="openSetup(null)">+ New hobby</button>`);
+    return;
+  }
+  const ex=S.hobbies.find(x=>x.id===id);
+  const h=ex||{name:'',category:S.categories[0],freq:'daily',count:3,days:[]};
+  const r=ex?ex.reminder:S.defaults;
+  openSheet(`<div class="grip"></div><h2 class="sheet-title">${ex?'Edit hobby':'New hobby'}</h2>
+    <label class="lbl">Name</label>
+    <input id="f-name" value="${esc(h.name)}" placeholder="e.g. Sketching">
+    <label class="lbl">Category</label>
+    <select id="f-cat">${S.categories.map(c=>`<option ${c===h.category?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <label class="lbl">Frequency</label>
+    <select id="f-freq" onchange="syncForm()">
+      ${[['daily','Daily'],['week','X times a week'],['month','X times a month'],['weekdays','Specific weekdays']].map(([v,t])=>`<option value="${v}" ${h.freq===v?'selected':''}>${t}</option>`).join('')}
+    </select>
+    <div data-freq="week month"><label class="lbl">Target (times)</label><input id="f-count" type="number" min="1" value="${h.count}"></div>
+    <div data-freq="weekdays"><label class="lbl">Days (target is the number of days)</label>
+      <div class="chips" id="f-days">${DAYS.map((d,i)=>`<button type="button" class="chip ${(h.days||[]).includes(i)?'on':''}" data-d="${i}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
+    ${remFields(r)}
+    <div class="row" style="margin-top:14px">
+      ${ex?`<button class="btn ghost" onclick="deleteHobby('${ex.id}')">Delete</button>`:'<span></span>'}
+      <div class="row2"><button class="btn ghost" onclick="closeSheet()">Cancel</button><button class="btn" onclick="saveHobby('${ex?ex.id:''}')">Save</button></div>
+    </div>`);
+  syncForm();
+}
+function saveHobby(id){
+  const name=$('#f-name').value.trim();
+  if(!name){alert('Please give your hobby a name.');return;}
+  const freq=$('#f-freq').value;
+  const days=[...document.querySelectorAll('#f-days .chip.on')].map(b=>+b.dataset.d);
+  if(freq==='weekdays'&&!days.length){alert('Pick at least one weekday.');return;}
+  const data={name,category:$('#f-cat').value,freq,count:Math.max(1,(+$('#f-count').value)||1),days,
+    reminder:readRem(document.querySelector('.rem'))};
+  if(id){Object.assign(S.hobbies.find(h=>h.id===id),data);}
+  else{S.hobbies.push(Object.assign({id:uid()},data));}
+  save();closeSheet();render();
+}
+function deleteHobby(id){
+  if(!confirm('Delete this hobby and all its logs?'))return;
+  S.hobbies=S.hobbies.filter(h=>h.id!==id);
+  S.logs=S.logs.filter(l=>l.hobbyId!==id);
+  save();closeSheet();render();
+}
+
+/* ---------- Settings ---------- */
+function perm(){
+  if(!('Notification' in window))return 'Not supported in this browser';
+  if(Notification.permission==='granted')return 'Notifications on';
+  if(Notification.permission==='denied')return 'Blocked in browser settings';
+  return 'Allow notifications';
+}
+function askPerm(){
+  if('Notification' in window&&Notification.permission==='default')
+    Notification.requestPermission().then(()=>openSettings());
+}
+function openSettings(){
+  openSheet(`<div class="grip"></div><h2 class="sheet-title">Settings</h2>
+    <p class="sec">Default reminder</p>
+    <p class="muted small">Pre-fills new hobbies. You can change it per hobby in Hobby Setup.</p>
+    ${remFields(S.defaults)}
+    <button class="btn wide" onclick="saveDefaults()">Save default</button>
+    <p class="sec">Categories</p>
+    ${S.categories.map((c,i)=>`<div class="cat-row"><input value="${esc(c)}" onchange="renameCat(${i},this.value)"><button class="btn ghost" onclick="removeCat(${i})">✕</button></div>`).join('')}
+    <div class="cat-row"><input id="newcat" placeholder="New category"><button class="btn" onclick="addCat()">Add</button></div>
+    <p class="sec">Notifications</p>
+    <button class="btn ghost wide" onclick="askPerm()">${perm()}</button>
+    <p class="sec">Your data</p>
+    <button class="btn wide" onclick="exportCSV()">Export history (CSV)</button>
+    <button class="btn ghost wide" onclick="exportJSON()">Export full backup (JSON)</button>
+    <p class="sec">About</p>
+    <p class="muted small">Epiphany v1. Your data stays on this phone.</p>`);
+  syncForm();
+}
+function saveDefaults(){S.defaults=readRem(document.querySelector('.rem'));save();closeSheet();}
+function renameCat(i,val){
+  const name=val.trim();if(!name)return;
+  const old=S.categories[i];
+  S.hobbies.forEach(h=>{if(h.category===old)h.category=name;});
+  S.categories[i]=name;save();render();
+}
+function removeCat(i){
+  if(!confirm(`Remove "${S.categories[i]}"? Its hobbies will stay under Uncategorised.`))return;
+  S.categories.splice(i,1);save();render();openSettings();
+}
+function addCat(){
+  const v=$('#newcat').value.trim();
+  if(!v||S.categories.includes(v))return;
+  S.categories.push(v);save();render();openSettings();
+}
+
+/* ---------- Export ---------- */
+function download(name,text,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+}
+function exportCSV(){
+  const rows=[['date','time','hobby','category','mood','note']];
+  S.logs.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(l=>{
+    const h=S.hobbies.find(x=>x.id===l.hobbyId)||{};
+    rows.push([l.date,l.time||'',h.name||'(deleted)',h.category||'',l.mood||'',l.note||'']);
+  });
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  download('epiphany-history.csv',csv,'text/csv');
+}
+function exportJSON(){download('epiphany-backup.json',JSON.stringify(S,null,2),'application/json');}
+
+/* ---------- Start ---------- */
+render();
+checkReminders();
+setInterval(checkReminders,30000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
